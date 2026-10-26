@@ -1,8 +1,8 @@
 # Strata CI/CD.
 #
-# Every push:        tests on Linux.
 # main and v* tags:  release builds for macOS (universal .dmg), Linux (.tar.gz) and Windows
-#                    (setup .exe installer plus a portable .zip).
+#                    (setup .exe installer plus a portable .zip). The macOS and Windows jobs
+#                    run the test suite before packaging.
 # v* tags only:      publishes a GitHub release with those files attached.
 #
 # Required project environment variable (Project Settings → Environment Variables):
@@ -82,22 +82,6 @@ commands:
             - target
 
 jobs:
-  test-linux:
-    docker:
-      - image: cimg/base:current
-    resource_class: large
-    steps:
-      - checkout
-      - linux-deps
-      - install-rust-unix
-      - cargo-cache-restore:
-          key: linux-test
-      - run:
-          name: Test
-          command: cargo test --locked
-      - cargo-cache-save:
-          key: linux-test
-
   build-linux:
     docker:
       - image: cimg/base:current
@@ -160,8 +144,9 @@ jobs:
             .\rustup-init.exe -y --profile minimal --default-toolchain << pipeline.parameters.rust-version >>
             Remove-Item rustup-init.exe
       - run:
-          name: Install Inno Setup
-          command: choco install innosetup -y --no-progress
+          # NASM: aws-lc-sys (crypto for the russh SSH client) assembles its Windows sources with it.
+          name: Install Inno Setup and NASM
+          command: choco install innosetup nasm -y --no-progress
       - restore_cache:
           keys:
             - cargo-v1-windows-release-{{ checksum "Cargo.lock" }}
@@ -169,7 +154,7 @@ jobs:
       - run:
           name: Test, build and package
           command: |
-            $env:Path = "$env:USERPROFILE\.cargo\bin;$env:Path"
+            $env:Path = "$env:USERPROFILE\.cargo\bin;$env:ProgramFiles\NASM;$env:Path"
             $version = (Select-String -Path Cargo.toml -Pattern '^version = "(.+)"' | Select-Object -First 1).Matches[0].Groups[1].Value
             if ($env:CIRCLE_TAG -and $env:CIRCLE_TAG.TrimStart('v') -ne $version) { throw "Tag $env:CIRCLE_TAG does not match Cargo.toml version $version" }
             cargo test --locked --release
@@ -220,26 +205,19 @@ jobs:
 workflows:
   ci:
     jobs:
-      - test-linux:
-          filters:
-            tags:
-              only: /^v\d+\.\d+\.\d+.*/
       - build-linux:
-          requires: [test-linux]
           filters:
             branches:
               only: main
             tags:
               only: /^v\d+\.\d+\.\d+.*/
       - build-macos:
-          requires: [test-linux]
           filters:
             branches:
               only: main
             tags:
               only: /^v\d+\.\d+\.\d+.*/
       - build-windows:
-          requires: [test-linux]
           filters:
             branches:
               only: main

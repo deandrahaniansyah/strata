@@ -66,7 +66,7 @@ The ODBC transport integration test also needs `STRATA_TEST_ODBC_DSN` and the Po
 
 ### CI and releases
 
-CircleCI (`.circleci/config.yml`) tests every push on Linux. Pushes to `main` also build the macOS, Linux and Windows packages and keep them as build artifacts. The `scripts/package-*` scripts do the packaging and also run locally.
+CircleCI (`.circleci/config.yml`) builds the macOS, Linux and Windows packages on every push to `main` and keeps them as build artifacts. The macOS and Windows jobs run the test suite first. The `scripts/package-*` scripts do the packaging and also run locally.
 
 To publish a release:
 
