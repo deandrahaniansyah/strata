@@ -27,7 +27,7 @@ The name comes from geological *strata*, the layers that tables, schemas and dat
 Builds for macOS (universal, Apple silicon and Intel), Windows (x86_64) and Linux (x86_64) are attached to each [GitHub release](https://github.com/fikrifirmanf/strata/releases).
 
 - **macOS:** open the `.dmg` and drag Strata to Applications. The build is not notarized yet, so the first launch needs right-click → **Open**.
-- **Windows:** unzip and run `strata.exe`.
+- **Windows:** run `Strata-<version>-windows-x86_64-setup.exe`. It installs for your user without an admin prompt, adds a Start menu entry and an uninstaller, and upgrades in place. The `.zip` is a portable copy that runs from any folder. Neither is code-signed yet, so SmartScreen may ask you to confirm with **More info → Run anyway**.
 - **Linux:** unpack the `.tar.gz`, put `strata` on your `PATH`, and copy `strata.desktop` and `strata.png` into `~/.local/share/applications` and `~/.local/share/icons` if you want a launcher entry.
 
 Strata checks GitHub for a newer release when it starts and shows a popup when one is out. **Help → Check for Updates** checks on demand, and the About window can turn the startup check off.
@@ -48,7 +48,7 @@ Requires Rust 1.95 or newer.
 | Platform | Extra packages |
 |---|---|
 | macOS | none |
-| Windows | none (MSVC toolchain) |
+| Windows | none (MSVC toolchain); [Inno Setup 6](https://jrsoftware.org/isinfo.php) to build the installer |
 | Linux | `libgtk-3-dev libssl-dev pkg-config libxkbcommon-dev` |
 
 The Unix ODBC manager is bundled at build time. Vendor ODBC connections also need an installed vendor driver and a configured DSN. Windows uses the system ODBC manager.
