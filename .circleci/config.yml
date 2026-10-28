@@ -1,9 +1,8 @@
 # Strata CI/CD.
 #
-# main and v* tags:  release builds for macOS (universal .dmg), Linux (.tar.gz) and Windows
-#                    (setup .exe installer plus a portable .zip). The macOS and Windows jobs
-#                    run the test suite before packaging.
-# v* tags only:      publishes a GitHub release with those files attached.
+# Runs only for v* release tags: builds macOS (universal .dmg), Linux (.tar.gz) and Windows
+# (setup .exe installer plus a portable .zip), then publishes a GitHub release with those files
+# and a SHA256SUMS.txt attached. The macOS and Windows jobs run the test suite before packaging.
 #
 # Required project environment variable (Project Settings → Environment Variables):
 #   GH_TOKEN  a GitHub token that can create releases on this repository
@@ -194,6 +193,7 @@ jobs:
               exit 1
             fi
             repo="$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME"
+            (cd dist && shasum -a 256 * > SHA256SUMS.txt)
             prerelease=""
             case "$CIRCLE_TAG" in *-*) prerelease="--prerelease" ;; esac
             if gh release view "$CIRCLE_TAG" --repo "$repo" >/dev/null 2>&1; then
@@ -208,19 +208,19 @@ workflows:
       - build-linux:
           filters:
             branches:
-              only: main
+              ignore: /.*/
             tags:
               only: /^v\d+\.\d+\.\d+.*/
       - build-macos:
           filters:
             branches:
-              only: main
+              ignore: /.*/
             tags:
               only: /^v\d+\.\d+\.\d+.*/
       - build-windows:
           filters:
             branches:
-              only: main
+              ignore: /.*/
             tags:
               only: /^v\d+\.\d+\.\d+.*/
       - publish-release:

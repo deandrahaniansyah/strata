@@ -26,7 +26,7 @@ The name comes from geological *strata*, the layers that tables, schemas and dat
 
 Builds for macOS (universal, Apple silicon and Intel), Windows (x86_64) and Linux (x86_64) are attached to each [GitHub release](https://github.com/fikrifirmanf/strata/releases).
 
-- **macOS:** open the `.dmg` and drag Strata to Applications. The build is not notarized yet, so the first launch needs right-click → **Open**.
+- **macOS:** install from the terminal with `curl -fsSL https://raw.githubusercontent.com/fikrifirmanf/strata/main/install.sh | sh`. It downloads the latest universal build, checks it against `SHA256SUMS.txt` and copies Strata into `/Applications` (set `STRATA_INSTALL_DIR` to change that). The build is ad-hoc signed, not notarized; files fetched with `curl` carry no quarantine flag, so it opens normally. If you download the `.dmg` in a browser instead, macOS says “Apple could not verify Strata”: dismiss it, open **System Settings → Privacy & Security** and choose **Open Anyway**.
 - **Windows:** run `Strata-<version>-windows-x86_64-setup.exe`. It installs for your user without an admin prompt, adds a Start menu entry and an uninstaller, and upgrades in place. The `.zip` is a portable copy that runs from any folder. Neither is code-signed yet, so SmartScreen may ask you to confirm with **More info → Run anyway**.
 - **Linux:** unpack the `.tar.gz`, put `strata` on your `PATH`, and copy `strata.desktop` and `strata.png` into `~/.local/share/applications` and `~/.local/share/icons` if you want a launcher entry.
 
@@ -66,7 +66,7 @@ The ODBC transport integration test also needs `STRATA_TEST_ODBC_DSN` and the Po
 
 ### CI and releases
 
-CircleCI (`.circleci/config.yml`) builds the macOS, Linux and Windows packages on every push to `main` and keeps them as build artifacts. The macOS and Windows jobs run the test suite first. The `scripts/package-*` scripts do the packaging and also run locally.
+CircleCI (`.circleci/config.yml`) builds the macOS, Linux and Windows packages only for `v*` release tags and attaches them, with a `SHA256SUMS.txt`, to the GitHub release. The macOS and Windows jobs run the test suite first. The `scripts/package-*` scripts do the packaging and also run locally.
 
 To publish a release:
 
